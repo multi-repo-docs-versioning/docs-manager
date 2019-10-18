@@ -20,7 +20,8 @@ func main() {
 			repos := val.Repos
 			for _, repo := range repos {
 				path := os.Args[2] + repo.Name
-				err := os.Mkdir(path, 0700)
+				err = os.Mkdir(path, 0700)
+
 				if err != nil {
 					panic(err)
 				}
