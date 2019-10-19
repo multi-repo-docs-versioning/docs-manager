@@ -12,12 +12,12 @@ import (
 type TagName int
 
 const (
-	Master TagName = iota
+	Latest TagName = iota
 	Experimental
 )
 
 func (t TagName) String() string {
-	return [...]string{"master", "experimental"}[t]
+	return [...]string{"v1.0", "v0.0"}[t]
 }
 
 func removeContents(dir string) error {
@@ -43,64 +43,73 @@ func removeContents(dir string) error {
 
 func versionHandler(config *utils.DocsConfig) {
 	versions := config.GetDocsYamlConfig().Versions
+	err := os.MkdirAll("./site", 0755)
+	utils.CheckIfError(err)
+	versionsArray := make([]string, len(versions))
+
+	for index, val := range versions {
+		versionsArray[index] = val.Ver
+	}
+
 	for _, val := range versions {
 		switch val.Ver {
-		case Master.String():
+		case Latest.String():
 			repos := val.Repos
 			for _, repo := range repos {
 				path := os.Args[2] + repo.Name
-				err := os.MkdirAll(path, 0700)
-
-				if err != nil {
-					panic(err)
-				}
+				err := os.MkdirAll(path, 0755)
+				utils.CheckIfError(err)
 				cloneOptions := git.CloneOptions{
 					URL:      repo.URL,
 					Tags:     git.AllTags,
 					Progress: os.Stdout,
 				}
-				repo := repository.New().
+				gitRepo := repository.New().
 					SetCloneOptions(cloneOptions).
 					SetTagName(repo.TagName).
 					SetPath(path).
 					Build()
 
-				err = repo.Clone()
+				err = gitRepo.Clone()
 				utils.CheckIfError(err)
 				err = removeContents(path)
 				utils.CheckIfError(err)
 			}
-		case Experimental.String():
-			repos := val.Repos
-			for _, repo := range repos {
-				path := os.Args[2] + "experimental/" + repo.Name
-				if _, err := os.Stat(path); os.IsNotExist(err) {
-					err = os.MkdirAll(path, 0700)
-					utils.CheckIfError(err)
-				}
-
-				cloneOptions := git.CloneOptions{
-					URL:      repo.URL,
-					Tags:     git.AllTags,
-					Progress: os.Stdout,
-				}
-				repo := repository.New().
-					SetCloneOptions(cloneOptions).
-					SetTagName(repo.TagName).
-					SetPath(path).
-					Build()
-
-				err := repo.Clone()
-				utils.CheckIfError(err)
-				err = removeContents(path)
+			build(versionsArray, Latest.String())
+		/*case Experimental.String():
+		repos := val.Repos
+		docsDir := os.Args[2] + Experimental.String() + "/"
+		for _, repo := range repos {
+			path := docsDir + repo.Name
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				err = os.MkdirAll(path, 0755)
 				utils.CheckIfError(err)
 			}
+
+			cloneOptions := git.CloneOptions{
+				URL:      repo.URL,
+				Tags:     git.AllTags,
+				Progress: os.Stdout,
+			}
+			gitRepo := repository.New().
+				SetCloneOptions(cloneOptions).
+				SetTagName(repo.TagName).
+				SetPath(path).
+				Build()
+
+			err := gitRepo.Clone()
+			utils.CheckIfError(err)
+			err = removeContents(path)
+			utils.CheckIfError(err)
+		}
+		build(versionsArray, Experimental.String())*/
 		default:
 			repos := val.Repos
+			docsDir := os.Args[2] + val.Ver + "/"
 			for _, repo := range repos {
-				path := os.Args[2] + val.Ver + "/" + repo.Name
+				path := docsDir + repo.Name
 				if _, err := os.Stat(path); os.IsNotExist(err) {
-					err = os.MkdirAll(path, 0700)
+					err = os.MkdirAll(path, 0755)
 					utils.CheckIfError(err)
 				}
 
@@ -109,20 +118,20 @@ func versionHandler(config *utils.DocsConfig) {
 					Tags:     git.AllTags,
 					Progress: os.Stdout,
 				}
-				repo := repository.New().
+				gitRepo := repository.New().
 					SetCloneOptions(cloneOptions).
 					SetTagName(repo.TagName).
 					SetPath(path).
 					Build()
 
-				err := repo.Clone()
+				err := gitRepo.Clone()
 				utils.CheckIfError(err)
-				err = repo.CheckOutTag()
+				err = gitRepo.CheckOutTag()
 				utils.CheckIfError(err)
 				err = removeContents(path)
 				utils.CheckIfError(err)
 			}
-
+			build(versionsArray, val.Ver)
 		}
 	}
 }
