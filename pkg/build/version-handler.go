@@ -1,7 +1,9 @@
-package main
+package build
 
 import (
 	"os"
+
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/common"
 
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/repository"
 	utils "github.com/multi-repo-docs-versioning/docs-manager/pkg/utils"
@@ -12,16 +14,16 @@ type TagName int
 
 const (
 	Latest TagName = iota
-	Experimental
 )
 
 func (t TagName) String() string {
-	return [...]string{"v1.0", "v0.0"}[t]
+	return [...]string{"v1.0"}[t]
 }
 
-func versionHandler(config *utils.DocsConfig) {
+// VersionHandler handle different versions of docs
+func VersionHandler(config *utils.DocsConfig) {
 	versions := config.GetDocsYamlConfig().Versions
-	err := os.MkdirAll(SiteDirName, PermissionMode)
+	err := os.MkdirAll(common.SiteDirName, common.PermissionMode)
 	utils.CheckIfError(err)
 	versionsArray := make([]string, len(versions))
 
@@ -35,7 +37,7 @@ func versionHandler(config *utils.DocsConfig) {
 			repos := val.Repos
 			for _, repo := range repos {
 				path := os.Args[2] + repo.Name
-				err := os.MkdirAll(path, PermissionMode)
+				err := os.MkdirAll(path, common.PermissionMode)
 				utils.CheckIfError(err)
 				cloneOptions := git.CloneOptions{
 					URL:      repo.URL,
@@ -60,7 +62,7 @@ func versionHandler(config *utils.DocsConfig) {
 			for _, repo := range repos {
 				path := docsDir + repo.Name
 				if _, err := os.Stat(path); os.IsNotExist(err) {
-					err = os.MkdirAll(path, PermissionMode)
+					err = os.MkdirAll(path, common.PermissionMode)
 					utils.CheckIfError(err)
 				}
 

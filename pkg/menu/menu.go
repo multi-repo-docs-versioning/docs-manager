@@ -4,10 +4,11 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/multi-repo-docs-versioning/docs-manager/pkg/manifest"
-	"github.com/multi-repo-docs-versioning/docs-manager/pkg/types"
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/common"
 
 	"github.com/containous/structor/file"
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/manifest"
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/types"
 
 	"github.com/pkg/errors"
 )
@@ -59,8 +60,8 @@ func getMenuFileContent(f string, u string) ([]byte, error) {
 
 // Build the menu.
 func Build(versionsInfo types.VersionsInformation, branches []string, menuContent Content) error {
-	//manifestFile := filepath.Join(versionsInfo.CurrentPath, manifest.FileName)
-	manifestFile := "./mkdocs.yml"
+
+	manifestFile := common.MkdocsConfig
 	manif, err := manifest.Read(manifest.FileName)
 	if err != nil {
 		return err

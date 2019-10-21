@@ -1,19 +1,16 @@
-package main
+package build
 
 import (
 	"os"
 
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/common"
+
+	"github.com/multi-repo-docs-versioning/docs-manager/pkg/manifest"
+
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/menu"
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/types"
 
-	"github.com/multi-repo-docs-versioning/docs-manager/pkg/manifest"
 	utils "github.com/multi-repo-docs-versioning/docs-manager/pkg/utils"
-)
-
-const (
-	MkdocsConfig   = "mkdocs.yml"
-	SiteDirName    = "./site/"
-	PermissionMode = 0755
 )
 
 // build build docs website according to the given list of versions
@@ -21,14 +18,14 @@ func build(versions []string, tagName string) {
 	manif, _ := manifest.Read(os.Args[3])
 	var docsDir string
 
-	manifestPath := MkdocsConfig
+	manifestPath := common.MkdocsConfig
 	var siteDir string
 	if tagName == Latest.String() {
 		docsDir = os.Args[2]
-		siteDir = SiteDirName
+		siteDir = common.SiteDirName
 	} else {
 		docsDir = os.Args[2] + tagName + "/"
-		siteDir = SiteDirName + tagName + ""
+		siteDir = common.SiteDirName + tagName + ""
 		utils.RunCommand("cp", "./content/README.md", docsDir)
 		utils.RunCommand("cp", "-r", "./content/images", docsDir)
 		utils.RunCommand("cp", "-r", "./content/developers", docsDir)
@@ -43,10 +40,9 @@ func build(versions []string, tagName string) {
 	menuContent := menu.GetTemplateContent(&menuConfig)
 
 	versionsInfo := types.VersionsInformation{
-		Current:      tagName,
-		Latest:       Latest.String(),
-		Experimental: Experimental.String(),
-		CurrentPath:  docsDir,
+		Current:     tagName,
+		Latest:      Latest.String(),
+		CurrentPath: docsDir,
 	}
 
 	err = menu.Build(versionsInfo, versions, menuContent)
