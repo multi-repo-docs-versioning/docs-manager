@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	MkdocsConfig = "mkdocs.yml"
-	SiteDirName  = "./site/"
+	MkdocsConfig   = "mkdocs.yml"
+	SiteDirName    = "./site/"
+	PermissionMode = 0755
 )
 
 // build build docs website according to the given list of versions
