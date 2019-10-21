@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -36,10 +38,42 @@ func Warning(format string, args ...interface{}) {
 	fmt.Printf("\x1b[36;1m%s\x1b[0m\n", fmt.Sprintf(format, args...))
 }
 
+// MustReadFile read a file based on a given path and return an array of bytes
 func MustReadFile(path string) []byte {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 	return bytes
+}
+
+// RemoveContents remove all folders of a given dir except docs folder
+func RemoveContents(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		if name != "docs" {
+			err = os.RemoveAll(filepath.Join(dir, name))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// RunCommand run a linux command
+func RunCommand(name string, args ...string) {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	CheckIfError(err)
 }

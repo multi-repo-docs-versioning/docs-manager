@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/repository"
 	utils "github.com/multi-repo-docs-versioning/docs-manager/pkg/utils"
@@ -18,27 +17,6 @@ const (
 
 func (t TagName) String() string {
 	return [...]string{"v1.0", "v0.0"}[t]
-}
-
-func removeContents(dir string) error {
-	d, err := os.Open(dir)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	names, err := d.Readdirnames(-1)
-	if err != nil {
-		return err
-	}
-	for _, name := range names {
-		if name != "docs" {
-			err = os.RemoveAll(filepath.Join(dir, name))
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func versionHandler(config *utils.DocsConfig) {
@@ -72,7 +50,7 @@ func versionHandler(config *utils.DocsConfig) {
 
 				err = gitRepo.Clone()
 				utils.CheckIfError(err)
-				err = removeContents(path)
+				err = utils.RemoveContents(path)
 				utils.CheckIfError(err)
 			}
 			build(versionsArray, Latest.String())
@@ -128,7 +106,7 @@ func versionHandler(config *utils.DocsConfig) {
 				utils.CheckIfError(err)
 				err = gitRepo.CheckOutTag()
 				utils.CheckIfError(err)
-				err = removeContents(path)
+				err = utils.RemoveContents(path)
 				utils.CheckIfError(err)
 			}
 			build(versionsArray, val.Ver)

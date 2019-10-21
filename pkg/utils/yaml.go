@@ -12,13 +12,14 @@ type DocsConfig struct {
 	fileName       string
 }
 
+// NewDocsConfig returns an instance of DocsConfig data structure
 func NewDocsConfig(fileName string) *DocsConfig {
 	return &DocsConfig{
 		fileName: fileName,
 	}
 }
 
-// DocsYamlConfig corresponding golang structure for versions yaml file
+// DocsYamlConfig corresponding golang structure for a versions yaml file
 type DocsYamlConfig struct {
 	Versions []struct {
 		Ver   string `yaml:"ver"`
@@ -30,12 +31,12 @@ type DocsYamlConfig struct {
 	} `yaml:"versions"`
 }
 
-// GetDocsYamlConfig
+// GetDocsYamlConfig return the docs yaml config data structure
 func (c *DocsConfig) GetDocsYamlConfig() DocsYamlConfig {
 	return c.docsYamlConfig
 }
 
-// Parse parse yaml config file
+// Parse parse a yaml config file
 func (c *DocsConfig) Parse() error {
 	data, err := ioutil.ReadFile(c.fileName)
 	if err != nil {
