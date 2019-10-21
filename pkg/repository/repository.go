@@ -6,6 +6,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
+// Repository data structure to represent a repository information
 type Repository struct {
 	path         string
 	cloneOptions git.CloneOptions
@@ -13,6 +14,7 @@ type Repository struct {
 	tagName      string
 }
 
+// RepositoryBuilder repository builder interface
 type RepositoryBuilder interface {
 	SetPath(string) RepositoryBuilder
 	SetCloneOptions(git.CloneOptions) RepositoryBuilder
@@ -21,6 +23,7 @@ type RepositoryBuilder interface {
 	Build() Repository
 }
 
+// New Creates an instance of repository builder
 func New() RepositoryBuilder {
 	return &Repository{
 		path:         "/tmp/test",
@@ -30,6 +33,7 @@ func New() RepositoryBuilder {
 	}
 }
 
+// Build build a Repository instance
 func (repo *Repository) Build() Repository {
 	return Repository{
 		path:         repo.path,

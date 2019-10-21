@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"os/exec"
 
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/menu"
 	"github.com/multi-repo-docs-versioning/docs-manager/pkg/types"
@@ -16,6 +15,7 @@ const (
 	SiteDirName  = "./site/"
 )
 
+// build build docs website according to the given list of versions
 func build(versions []string, tagName string) {
 	manif, _ := manifest.Read(os.Args[3])
 	var docsDir string
@@ -28,16 +28,9 @@ func build(versions []string, tagName string) {
 	} else {
 		docsDir = os.Args[2] + tagName + "/"
 		siteDir = SiteDirName + tagName + ""
-		cmd := exec.Command("cp", "./content/README.md", docsDir)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err := cmd.Run()
-		utils.CheckIfError(err)
-		cmd = exec.Command("cp", "-r", "./content/images", docsDir)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		err = cmd.Run()
-		utils.CheckIfError(err)
+		utils.RunCommand("cp", "./content/README.md", docsDir)
+		utils.RunCommand("cp", "-r", "./content/images", docsDir)
+		utils.RunCommand("cp", "-r", "./content/developers", docsDir)
 	}
 
 	manif["docs_dir"] = docsDir
@@ -58,11 +51,7 @@ func build(versions []string, tagName string) {
 	err = menu.Build(versionsInfo, versions, menuContent)
 	utils.CheckIfError(err)
 
-	cmd := exec.Command("mkdocs", "build", "--site-dir", siteDir, "-q")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	utils.CheckIfError(err)
+	utils.RunCommand("mkdocs", "build", "--site-dir", siteDir, "-q")
 	manif["docs_dir"] = "content"
 	err = manifest.Write(manifestPath, manif)
 	utils.CheckIfError(err)
